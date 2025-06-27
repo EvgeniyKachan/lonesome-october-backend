@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 
 const characterRouters = require("./routers/characters-routers");
+const usersRoutes = require("./routers/users-routes");
 
 const app = express();
 
@@ -18,12 +19,13 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/characters", characterRouters);
+app.use("/api/users", usersRoutes);
 
 app.use((error, req, res, next) => {
   if (res.headerSent) {
     return next(error);
   }
-  res.status(error.code || 500);
+  res.status(error.code || error.status || 500);
   res.json({ message: error.message || "An unknown error occurred!" });
 });
 

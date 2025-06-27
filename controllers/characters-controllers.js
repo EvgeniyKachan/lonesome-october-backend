@@ -1,4 +1,4 @@
-const Character = require("../models/characters");
+const Character = require("../models/character");
 
 const getCharacters = async (req, res, next) => {
   let characters;
