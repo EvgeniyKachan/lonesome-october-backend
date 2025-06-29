@@ -46,14 +46,16 @@ const signup = async (req, res, next) => {
 
     await createdUser.save();
 
+    const payload = { userId: createdUser._id, email: createdUser.email };
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+
     res.status(201).json({
-      user: createdUser.toObject({
-        getters: true,
-        transform: (doc, ret) => {
-          delete ret.password;
-          return ret;
-        },
-      }),
+      token,
+      user: {
+        id: createdUser._id,
+        username: createdUser.username,
+        email: createdUser.email,
+      },
     });
   } catch (err) {
     return next(
