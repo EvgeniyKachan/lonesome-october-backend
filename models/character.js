@@ -2,35 +2,35 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const characterSchema = new Schema({
-  name: {
+  characterName: {
     type: String,
     required: true,
   },
-  role: {
+  characterRole: {
     type: String,
     required: true,
   },
-  description: {
+  characterDescription: {
     type: String,
     required: true,
   },
-  image: {
+  characterImage: {
     type: String,
   },
   familiar: {
-    name: {
+    familiarName: {
       type: String,
       required: true,
     },
-    species: {
+    familiarSpecies: {
       type: String,
       required: true,
     },
-    description: {
+    familiarDescription: {
       type: String,
       required: true,
     },
-    image: {
+    familiarImage: {
       type: String,
     },
   },
