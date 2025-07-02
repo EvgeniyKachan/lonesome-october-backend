@@ -1,4 +1,7 @@
+const mongoose = require("mongoose");
 const createError = require("http-errors");
+const { validationResult } = require("express-validator");
+const User = require("../models/user");
 const Character = require("../models/character");
 
 const getCharacters = async (req, res, next) => {
@@ -8,7 +11,7 @@ const getCharacters = async (req, res, next) => {
   } catch (err) {
     return next(
       createError(500, "Fetching characters failed, please try again later.", {
-        err: err.array(),
+        err: err.message,
       })
     );
   }
@@ -27,7 +30,7 @@ const getCharacterById = async (req, res, next) => {
   } catch (err) {
     return next(
       createError(500, "Fetching characters failed, please try again later.", {
-        err: err.array(),
+        err: err.message,
       })
     );
   }
@@ -49,18 +52,25 @@ const createCharacter = async (req, res, next) => {
     );
   }
 
-  const { name, role, description, image, familiar, creator } = req.body;
+  const {
+    characterName,
+    characterRole,
+    characterDescription,
+    characterImage,
+    familiar,
+    creator,
+  } = req.body;
 
   const createdCharacter = new Character({
-    name,
-    role,
-    description,
-    image,
+    characterName,
+    characterRole,
+    characterDescription,
+    characterImage,
     familiar: {
-      name: familiar.name,
-      species: familiar.species,
-      description: familiar.description,
-      image: familiar?.image,
+      familiarName: familiar.familiarName,
+      familiarSpecies: familiar.familiarSpecies,
+      familiarDescription: familiar.familiarDescription,
+      familiarImage: familiar.familiarImage,
     },
     creator,
   });
@@ -68,10 +78,11 @@ const createCharacter = async (req, res, next) => {
   let user;
   try {
     user = await User.findById(creator);
-  } catch (err) {
+  } catch (error) {
+    console.log(error);
     return next(
       createError(500, "Creating character failed, please try again", {
-        err: err.array(),
+        error: error.message,
       })
     );
   }
@@ -80,8 +91,6 @@ const createCharacter = async (req, res, next) => {
     return next(createError(404, "Could not find user for provided id"));
   }
 
-  console.log(user);
-
   try {
     const sess = await mongoose.startSession();
     sess.startTransaction();
@@ -89,10 +98,10 @@ const createCharacter = async (req, res, next) => {
     user.characters.push(createdCharacter);
     await user.save({ session: sess });
     await sess.commitTransaction();
-  } catch (err) {
+  } catch (error) {
     return next(
       createError(500, "Creating character failed, please try again", {
-        err: err.array(),
+        error: error.message,
       })
     );
   }
@@ -110,35 +119,41 @@ const updateCharacter = async (req, res, next) => {
     );
   }
 
-  const { name, role, description, image, familiar, creator } = req.body;
+  const {
+    characterName,
+    characterRole,
+    characterDescription,
+    characterImage,
+    familiar,
+  } = req.body;
   const characterId = req.params.characterId;
 
   let character;
   try {
     character = await Character.findById(characterId);
-  } catch (err) {
+  } catch (error) {
     return next(
       createError(500, "Something went wrong, could not update character.", {
-        err: err.array(),
+        error: err.message,
       })
     );
   }
 
-  character.name = name;
-  character.role = role;
-  character.image = image;
-  character.familiar.name = familiar.name;
-  character.familiar.species = familiar.species;
-  character.familiar.description = familiar.description;
-  character.familiar.image = familiar?.image;
-  character.description = description;
+  character.characterName = characterName;
+  character.characterRole = characterRole;
+  character.characterImage = characterImage;
+  character.familiar.name = familiar.familiarName;
+  character.familiar.species = familiar.familiarSpecies;
+  character.familiar.description = familiar.familiarDescription;
+  character.familiar.image = familiar.familiarImage;
+  character.characterDescription = characterDescription;
 
   try {
     await character.save();
-  } catch (err) {
+  } catch (error) {
     return next(
       createError(500, "Something went wrong, could not update character.", {
-        err: err.array(),
+        error: error.message,
       })
     );
   }
@@ -152,10 +167,10 @@ const deleteCharacter = async (req, res, next) => {
   let character;
   try {
     character = await Character.findById(characterId).populate("creator");
-  } catch (err) {
+  } catch (error) {
     return next(
       createError(500, "Something went wrong, could not delete character.", {
-        err: err.array(),
+        error: error.message,
       })
     );
   }
@@ -171,10 +186,10 @@ const deleteCharacter = async (req, res, next) => {
     character.creator.characters.pull(character);
     await character.creator.save({ session: sess });
     await sess.commitTransaction();
-  } catch (err) {
+  } catch (error) {
     return next(
       createError(500, "Something went wrong, could not delete character.", {
-        err: err.array(),
+        error: err.message,
       })
     );
   }
