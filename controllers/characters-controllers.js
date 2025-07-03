@@ -106,7 +106,9 @@ const createCharacter = async (req, res, next) => {
     );
   }
 
-  res.status(201).json({ character: createdCharacter });
+  res
+    .status(201)
+    .json({ character: createdCharacter.toObject({ getters: true }) });
 };
 
 const updateCharacter = async (req, res, next) => {
