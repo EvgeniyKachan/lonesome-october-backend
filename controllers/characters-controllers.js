@@ -52,13 +52,14 @@ const createCharacter = async (req, res, next) => {
     );
   }
 
+  const userId = req.user.userId;
+
   const {
     characterName,
     characterRole,
     characterDescription,
     characterImage,
     familiar,
-    creator,
   } = req.body;
 
   const createdCharacter = new Character({
@@ -72,14 +73,13 @@ const createCharacter = async (req, res, next) => {
       familiarDescription: familiar.familiarDescription,
       familiarImage: familiar.familiarImage,
     },
-    creator,
+    creator: userId,
   });
 
   let user;
   try {
-    user = await User.findById(creator);
+    user = await User.findById(createdCharacter.creator);
   } catch (error) {
-    console.log(error);
     return next(
       createError(500, "Creating character failed, please try again", {
         error: error.message,
@@ -129,34 +129,43 @@ const updateCharacter = async (req, res, next) => {
     familiar,
   } = req.body;
   const characterId = req.params.characterId;
+  const userId = req.user.userId;
 
   let character;
   try {
     character = await Character.findById(characterId);
-  } catch (error) {
+  } catch (err) {
     return next(
-      createError(500, "Something went wrong, could not update character.", {
-        error: err.message,
-      })
+      createError(500, "Could not fetch character.", { error: err.message })
+    );
+  }
+
+  if (!character) {
+    return next(createError(404, "Character not found."));
+  }
+
+  if (character.creator.toString() !== userId) {
+    return next(
+      createError(403, "You are not allowed to edit this character.")
     );
   }
 
   character.characterName = characterName;
   character.characterRole = characterRole;
   character.characterImage = characterImage;
-  character.familiar.name = familiar.familiarName;
-  character.familiar.species = familiar.familiarSpecies;
-  character.familiar.description = familiar.familiarDescription;
-  character.familiar.image = familiar.familiarImage;
   character.characterDescription = characterDescription;
+  character.familiar = {
+    familiarName: familiar.familiarName,
+    familiarSpecies: familiar.familiarSpecies,
+    familiarDescription: familiar.familiarDescription,
+    familiarImage: familiar.familiarImage,
+  };
 
   try {
     await character.save();
-  } catch (error) {
+  } catch (err) {
     return next(
-      createError(500, "Something went wrong, could not update character.", {
-        error: error.message,
-      })
+      createError(500, "Could not update character.", { error: err.message })
     );
   }
 
@@ -165,6 +174,7 @@ const updateCharacter = async (req, res, next) => {
 
 const deleteCharacter = async (req, res, next) => {
   const characterId = req.params.characterId;
+  const userId = req.user.userId;
 
   let character;
   try {
@@ -181,17 +191,23 @@ const deleteCharacter = async (req, res, next) => {
     return next(createError(404, "Could not find character for this id."));
   }
 
+  if (character.creator._id.toString() !== userId) {
+    return next(
+      createError(403, "You are not allowed to delete this character.")
+    );
+  }
+
   try {
     const sess = await mongoose.startSession();
     sess.startTransaction();
-    await character.remove({ session: sess });
+    await character.deleteOne({ session: sess });
     character.creator.characters.pull(character);
     await character.creator.save({ session: sess });
     await sess.commitTransaction();
   } catch (error) {
     return next(
       createError(500, "Something went wrong, could not delete character.", {
-        error: err.message,
+        error: error.message,
       })
     );
   }

@@ -1,6 +1,7 @@
 const express = require("express");
 const { body } = require("express-validator");
 const charactersController = require("../controllers/characters-controllers");
+const authenticateJWT = require("../utils/authenticateJWT");
 
 const router = express.Router();
 
@@ -31,11 +32,8 @@ router.post(
       .optional()
       .isURL()
       .withMessage("Familiar image must be a valid URL"),
-    body("creator")
-      .notEmpty()
-      .withMessage("Creator ID is required")
-      .isMongoId(),
   ],
+  authenticateJWT,
   charactersController.createCharacter
 );
 
@@ -75,8 +73,14 @@ router.patch(
       .isURL()
       .withMessage("Familiar image must be a valid URL"),
   ],
+  authenticateJWT,
   charactersController.updateCharacter
 );
-router.delete("/:characterId", charactersController.deleteCharacter);
+
+router.delete(
+  "/:characterId",
+  authenticateJWT,
+  charactersController.deleteCharacter
+);
 
 module.exports = router;
