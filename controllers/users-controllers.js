@@ -82,7 +82,7 @@ const login = async (req, res, next) => {
       throw createError(401, "Incorrect credentials");
     }
 
-    const isMatch = comparePasswords(password, user.password);
+    const isMatch = await comparePasswords(password, user.password);
 
     if (!isMatch) {
       throw createError(401, "Incorrect credentials");
