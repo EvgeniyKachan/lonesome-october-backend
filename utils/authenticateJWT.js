@@ -1,7 +1,7 @@
-const createError = require("http-errors");
-const jwt = require("jsonwebtoken");
+import createError from "http-errors";
+import jwt from "jsonwebtoken";
 
-module.exports = function authenticateJWT(req, res, next) {
+const authenticateJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith("Bearer ")) {
     return next(createError(401, "No token provided"));
@@ -16,3 +16,5 @@ module.exports = function authenticateJWT(req, res, next) {
     next(createError(401, "Invalid or expired token"));
   }
 };
+
+export default authenticateJWT;

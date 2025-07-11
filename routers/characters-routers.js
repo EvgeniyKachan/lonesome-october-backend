@@ -1,7 +1,7 @@
-const express = require("express");
-const { body } = require("express-validator");
-const charactersController = require("../controllers/characters-controllers");
-const authenticateJWT = require("../utils/authenticateJWT");
+import express from "express";
+import { body } from "express-validator";
+import charactersController from "../controllers/characters-controllers.js";
+import authenticateJWT from "../utils/authenticateJWT.js";
 
 const router = express.Router();
 
@@ -83,4 +83,4 @@ router.delete(
   charactersController.deleteCharacter
 );
 
-module.exports = router;
+export default router;

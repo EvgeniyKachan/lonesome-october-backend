@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+import mongoose from "mongoose";
+import { Schema } from "mongoose";
 
 const characterSchema = new Schema({
   characterName: {
@@ -37,4 +37,4 @@ const characterSchema = new Schema({
   creator: { type: mongoose.Types.ObjectId, required: true, ref: "User" },
 });
 
-module.exports = mongoose.model("Character", characterSchema);
+export default mongoose.model("Character", characterSchema);

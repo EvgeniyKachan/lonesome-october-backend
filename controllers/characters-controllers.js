@@ -1,8 +1,8 @@
-const mongoose = require("mongoose");
-const createError = require("http-errors");
-const { validationResult } = require("express-validator");
-const User = require("../models/user");
-const Character = require("../models/character");
+import mongoose from "mongoose";
+import createError from "http-errors";
+import { validationResult } from "express-validator";
+import User from "../models/user.js";
+import Character from "../models/character.js";
 
 const getCharacters = async (req, res, next) => {
   let characters;
@@ -215,8 +215,10 @@ const deleteCharacter = async (req, res, next) => {
   res.status(200).json({ message: "Deleted character." });
 };
 
-exports.getCharacters = getCharacters;
-exports.getCharacterById = getCharacterById;
-exports.createCharacter = createCharacter;
-exports.updateCharacter = updateCharacter;
-exports.deleteCharacter = deleteCharacter;
+export default {
+  getCharacters,
+  getCharacterById,
+  createCharacter,
+  updateCharacter,
+  deleteCharacter,
+};

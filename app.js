@@ -1,9 +1,8 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const mongoose = require("mongoose");
-
-const characterRouters = require("./routers/characters-routers");
-const usersRoutes = require("./routers/users-routes");
+import express from "express";
+import bodyParser from "body-parser";
+import mongoose from "mongoose";
+import characterRouters from "./routers/characters-routers.js";
+import usersRoutes from "./routers/users-routes.js";
 
 const app = express();
 

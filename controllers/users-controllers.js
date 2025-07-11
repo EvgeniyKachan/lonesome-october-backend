@@ -1,8 +1,8 @@
-const jwt = require("jsonwebtoken");
-const User = require("../models/user");
-const createError = require("http-errors");
-const { validationResult } = require("express-validator");
-const { hashPassword, comparePasswords } = require("../utils/hash");
+import jwt from "jsonwebtoken";
+import User from "../models/user.js";
+import createError from "http-errors";
+import { validationResult } from "express-validator";
+import { hashPassword, comparePasswords } from "../utils/hash.js";
 
 const JWT_EXPIRES_IN = "1h";
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -100,5 +100,4 @@ const login = async (req, res, next) => {
   }
 };
 
-exports.signup = signup;
-exports.login = login;
+export default { signup, login };
